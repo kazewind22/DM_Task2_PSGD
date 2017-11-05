@@ -5,15 +5,6 @@ def transform(X):
     # Make sure this function works for both 1D and 2D NumPy arrays.
     return X
 
-def ocp_svm(X,Y, l):
-    w = np.zeros(X.shape[1])
-    for t in range(X.shape[0]):
-        eta = 1.0 / np.sqrt(t+1)
-        if Y[t]*np.dot(w, X[t]) < 1:
-            w += eta*Y[t]*X[t]
-            w = w * min(1., 1./(np.sqrt(l)*np.linalg.norm(w)))
-    return w
-
 def read_from_string(line):
     line = line.rstrip().split()
     y = float(line[0])
