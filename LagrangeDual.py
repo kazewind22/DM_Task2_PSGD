@@ -2,6 +2,12 @@ import numpy as np
 import random
 import math
 
+# PARAMETER TO TRIM
+
+MAX_NUM_OF_PASSES = 1
+C = 1; # regularization param
+NUMERICAL_TOLERANCE = 0.1; # numerlical tolerance
+
 def self_inner(x):
     return np.dot(x,x) # flatten outer product matrix
 
@@ -22,13 +28,23 @@ def read_from_string(line):
     
     
 def compute_class(alphas, all_ys, all_xs, x):
-    iterations = alphas.shape[0]
-    
+    num_of_iters = alphas.shape[0]    
     result = 0
-    for i in range(0, iterations):
+    
+    for i in range(0, num_of_iters):
         result += alphas[i] * all_ys[i] * np.dot(all_xs[i,],x)
     
     return result
+    
+#def compute_w(alphas, all_ys, all_xs):
+#    num_of_iters = alphas.shape[0]
+#
+#    w = np.zeros(all_xs.shape[1]
+#    for i in range(0, num_of_iters)
+#        w += alphas[i] * all_ys[i] * all_xs[i,]
+#            
+#    return w
+
 
 def mapper(key, value):
     # key: None
@@ -41,32 +57,39 @@ def mapper(key, value):
     all_ys = np.zeros(num_ins)
     all_xs = np.zeros([num_ins, 400])
 
-    C = 1; # regularization param
-    tol = 1; # numerlical tolerance
-
     
     alphas = np.zeros(num_ins) # initialize lagrange multipliers with zeros
-    i = 0;    
+
     # for computing error we need all ys and xs
-    
+    i = 0;    
     for line in value:
         y, x = read_from_string(line)
-
-
         all_ys[i] = y
         all_xs[i,] = x
         i = i + 1
 
-    for i in range(0, num_ins):        
-        assigned_class = compute_class(alphas, all_ys, all_xs, x)
+    numOfPasses = 0 #initialize number of passes    
+    while(numOfPasses < MAX_NUM_OF_PASSES):
+        num_changed_alphas = 0 # initialize number of changed alphas in the current pass to 0
+        for i in range(0, num_ins):        
+            Error = compute_class(alphas, all_ys, all_xs, all_xs[i,]) - all_ys[i]
+            
+            if( (all_ys[i] * Error < -NUMERICAL_TOLERANCE and alphas[i] < C) or (all_ys[i] * Error > NUMERICAL_TOLERANCE and alphas[i] > 0) ):
+                print("inside if")
+            #TODO implement further based on http://cs229.stanford.edu/materials/smo.pdf   
         
+        if(num_changed_alphas == 0):
+            numOfPasses = numOfPasses + 1
+        else:
+            numOfPasses = 0
         
-    w = 0
+    #In this place we should have (after full implementation) good alphas
+    w = compute_w(alphas, all_ys, all_xs)
 
         
     
     
-    
+    #TODO change to yield when finished debugging
     return 0, w  # This is how you yield a key, value pair
 
 
@@ -80,10 +103,9 @@ def reducer(key, values):
     
     
 def main():
+
     f = open('data/small_data.txt', 'r')
-    
     lines = f.read().splitlines()
-     
     a = mapper(0, lines)
     
 
