@@ -2,13 +2,13 @@ import numpy as np
 import random
 
 def self_outer(x):
-    return np.ravel(np.outer(x,x)) # flatten outer product matrix
+    return np.outer(x,x).ravel() # flatten outer product matrix
 
 def transform(X):
     # Make sure this function works for both 1D and 2D NumPy arrays.
     # poly 2 transform
     if X.ndim == 1:
-        return np.ravel(np.outer(X, X))
+        return np.outer(X, X).ravel()
     elif X.ndim == 2:
         return np.apply_along_axis(self_outer, 1, X)
 
