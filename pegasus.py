@@ -23,10 +23,9 @@ def read_from_string(line):
 def mapper(key, value):
     # key: None
     # value: some lines of input file
-#    random.seed(22)
-#   random.shuffle(value)
+    random.seed(22)
+    random.shuffle(value)
 
-    
     alfa = 0.5
     eta = 1 / (alfa * 1)
     w = np.zeros(160000) #init w as zero vector 
@@ -59,13 +58,7 @@ def reducer(key, values):
     yield w
     
 def main():
-    numPy1D = np.array([1,2,3,4])
-    numPy2D = np.array([[1,2,3,4],[1,2,3,4]])
-    
-    selfOuterOutput1D = self_outer(numPy1D)
-    print(selfOuterOutput1D)
-    selfOuterOutput2D = self_outer(numPy2D)
-    print(selfOuterOutput2D)
+
 
 if __name__ == "__main__":
     main()
