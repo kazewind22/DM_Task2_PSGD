@@ -1,8 +1,8 @@
 import numpy as np
 
 DIM = 10000
-GAMMA = 20
-C = 10
+GAMMA = 15
+C = 1
 
 np.random.seed(22)
 W = np.sqrt(2*GAMMA)*np.random.normal(0, 1, (DIM, 400))
@@ -28,6 +28,7 @@ def mapper(key, value):
     w = np.zeros(DIM) #init w as zero vector
     t = 0 #iteration
     num_ins = len(value) # number of instances
+    G = np.ones(DIM)
     for line in value:
         t += 1;
         y, x = read_from_string(line)
@@ -35,9 +36,11 @@ def mapper(key, value):
         eta = 1.0 / np.sqrt(t)
         loss = 1 - y*np.dot(w,x)
         if loss > 0:
-            w = w - eta*(w/num_ins - C*loss*y*x)
+            grad = (w/num_ins - C*loss*y*x)
         else:
-            w = w - eta*(w/num_ins)
+            grad = (w/num_ins)
+        G += grad*grad
+        w = w - eta/np.sqrt(G)*grad
     yield 0, w  # This is how you yield a key, value pair
 
 
