@@ -1,39 +1,32 @@
 import numpy as np
-import random
+
+np.random.seed(22)
+random_sample = np.random.choice(160000, 40000, False)
+
+def poly_2_sampled(x):
+    num_dims = x.shape[0]
+    random_sampled_elems = np.outer(x,x).ravel()[random_sample]
+    return random_sampled_elems
 
 def transform(X):
     # Make sure this function works for both 1D and 2D NumPy arrays.
     # poly 2 transform
-    random.seed(22)
-
     if X.ndim == 1:
-        num_dims = X.shape[0]
-        idx_up_tri = np.triu_indices(num_dims)
-        upper_idx_elems = np.outer(X, X)[idx_up_tri]
-        first_n_dims_elems = upper_idx_elems[0:num_dims]
-        random_sampled_elems = np.random.choice(upper_idx_elems[num_dims:], num_dims*2, false)
-        return np.concatenate(first_n_dims_elems, random_sampled_elems
+        return poly_2_sampled(X)
     elif X.ndim == 2:
-        idx_up_tri = np.triu_indices(X.shape[1])
-        upper_idx_elems = np.array([np.outer(X[i], X[i])[idx_up_tri] for i in range(X.shape[0])])
-        for i in range(X.shape[0]):
-            first_n_dims_elems = upper_idx_elems[i][0:num_dims]
-            random_sampled_elems = np.random.choice(upper_idx_elems[num_dims:], num_dims*2, false)
-            ret[i] = np.concatenate(first_n_dims_elems, random_sampled_elems)
-        return ret
+        return np.apply_along_axis(poly_2_sampled, 1, X)
 
 def read_from_string(line):
-    line = line.rstrip().split()
-    y = float(line[0])
-    x = np.array([float(i) for i in line[1:]])
-    return y, x
+    nums = np.fromstring(line, dtype=float, sep=' ')
+    return nums[0], nums[1:]
 
 def mapper(key, value):
     # key: None
     # value: one line of input file
-    random.seed(22)
-    random.shuffle(value)
-    w = np.zeros(80200) #init w as zero vector
+    np.random.seed(22)
+    np.random.shuffle(value)
+    w = np.zeros(400) #init w as zero vector
+    w = transform(w)
     t = 1 #iteration
     C = 1 #parameter C
     num_ins = len(value) # number of instances
@@ -48,7 +41,6 @@ def mapper(key, value):
             w = w - eta*(w/num_ins)
     yield 0, w  # This is how you yield a key, value pair
 
-
 def reducer(key, values):
     # key: key from mapper used to aggregate
     # values: list of all value for that key
@@ -58,13 +50,3 @@ def reducer(key, values):
     #print(len(w))
     #print(w.dtype)
     yield w
-
-def main():
-
-    f = open('data/small_data.txt', 'r')
-    lines = f.read().splitlines()
-    a = mapper(0, lines)
-    
-
-if __name__ == "__main__":
-    main()
